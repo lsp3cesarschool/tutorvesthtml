@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="gge">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TutorVest – Admin</title>
+<style>
+:root[data-theme="gge"]{--bg-color:#f4f6f9;--surface-color:#fff;--text-primary:#000;
+  --text-secondary:#4a4a4a;--brand-color:#002b5c;--brand-hover:#e3000f;
+  --sidebar-bg:#fff;--radius:8px;--shadow:0 4px 12px rgba(0,0,0,.08);
+  --border:1px solid #e1e4e8;--font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-family);background:var(--bg-color);color:var(--text-primary);height:100vh;overflow:hidden;display:flex}
+button{font-family:inherit;cursor:pointer;border:none}
+.hidden{display:none!important}
+#dashboard-view{width:100%;height:100%;display:flex}
+.sidebar{width:250px;background:var(--sidebar-bg);border-right:var(--border);padding:15px;display:flex;flex-direction:column;box-shadow:var(--shadow);z-index:10}
+.sidebar-logo-container{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:20px;border-bottom:2px solid var(--brand-hover);padding-bottom:10px}
+.sidebar-logo-img{width:32px;height:auto;border-radius:4px}
+.sidebar-logo-text{font-size:1.4rem;font-weight:bold;color:var(--brand-color)}
+.nav-item{padding:10px 12px;margin-bottom:5px;border-radius:var(--radius);color:var(--text-secondary);font-weight:bold;cursor:pointer;transition:.2s;font-size:.9rem}
+.nav-item:hover,.nav-item.active{background:var(--brand-color);color:white}
+.logout-btn{margin-top:auto;color:var(--brand-hover);padding:10px 12px;cursor:pointer;font-weight:bold;font-size:.9rem;transition:.2s}
+.logout-btn:hover{background:#fee2e2;border-radius:var(--radius)}
+.main-content{flex:1;padding:25px 35px;overflow-y:auto}
+.header-title{font-size:1.6rem;margin-bottom:20px;color:var(--text-primary)}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin-bottom:25px}
+.stat-card{background:var(--surface-color);padding:15px;border-radius:var(--radius);box-shadow:var(--shadow);border:var(--border);border-left:4px solid var(--brand-hover)}
+.stat-card h3{color:var(--text-secondary);font-size:.85rem;margin-bottom:5px}
+.stat-card .value{font-size:1.6rem;font-weight:bold;color:var(--brand-color)}
+.table-responsive-wrapper{width:100%;overflow-x:auto;border-radius:var(--radius);box-shadow:var(--shadow)}
+.data-table{width:100%;border-collapse:collapse;background:var(--surface-color)}
+.data-table th,.data-table td{padding:12px;text-align:left;border-bottom:1px solid #eee;font-size:.9rem}
+.data-table th{background:var(--bg-color);font-weight:bold;color:var(--text-secondary);cursor:pointer;user-select:none;white-space:nowrap}
+.data-table th:hover{background:#e8ebee}
+.tag{padding:4px 8px;border-radius:12px;font-size:.75rem;font-weight:bold;display:inline-block}
+.tag.ativo{background:#dcfce7;color:#166534}.tag.inativo{background:#fef08a;color:#854d0e}.tag.excluido{background:#fee2e2;color:#991b1b}
+.btn-primary{padding:9px 16px;background:var(--brand-color);color:white;font-weight:bold;border-radius:var(--radius);transition:.2s;font-size:.88rem}
+.btn-primary:hover{background:var(--brand-hover)}
+.btn-action{padding:5px 10px;background:var(--surface-color);color:var(--brand-color);border:1px solid var(--brand-color);border-radius:var(--radius);font-size:.8rem;margin-right:3px}
+.btn-action:hover{background:var(--brand-color);color:white}
+.btn-action.delete{color:#dc2626;border-color:#dc2626}.btn-action.delete:hover{background:#dc2626;color:white}
+.btn-action.reativar{color:#16a34a;border-color:#16a34a}.btn-action.reativar:hover{background:#16a34a;color:white}
+.btn-reload{padding:7px 13px;background:#f0f9ff;color:#0369a1;border:1px solid #0369a1;border-radius:var(--radius);font-size:.82rem;font-weight:bold;cursor:pointer;transition:.2s}
+.btn-reload:hover{background:#0369a1;color:white}
+.btn-secondary{background:#6b7280;color:white;padding:9px 16px;font-weight:bold;border-radius:var(--radius);font-size:.88rem}
+.btn-secondary:hover{background:#4b5563}
+.section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:10px}
+.search-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:var(--surface-color);padding:12px;border-radius:var(--radius);box-shadow:var(--shadow);border:var(--border);margin-bottom:12px}
+.search-bar input,.search-bar select{padding:8px 12px;border-radius:var(--radius);border:1px solid #ccc;font-family:inherit;font-size:.88rem;background:var(--surface-color)}
+.search-bar input{flex:1;min-width:150px}
+.tabs{display:flex;margin-bottom:-1px;position:relative;z-index:1}
+.tab-btn{padding:8px 18px;border:1px solid #e1e4e8;border-bottom:none;background:#e8ebee;color:var(--text-secondary);font-weight:bold;font-size:.88rem;cursor:pointer;transition:.2s;border-radius:6px 6px 0 0}
+.tab-btn.active{background:var(--surface-color);color:var(--brand-color)}
+.tab-content{border:1px solid #e1e4e8;border-radius:0 6px 6px 6px;padding:15px;background:var(--surface-color)}
+.pagination{display:flex;gap:5px;justify-content:flex-end;margin-top:12px;align-items:center;flex-wrap:wrap}
+.page-btn{padding:5px 11px;border-radius:var(--radius);border:1px solid #ccc;background:var(--surface-color);font-size:.85rem;cursor:pointer;transition:.2s;font-family:inherit}
+.page-btn:hover,.page-btn.active{background:var(--brand-color);color:white;border-color:var(--brand-color)}
+.page-info{font-size:.83rem;color:var(--text-secondary);margin:0 4px}
+.input-group{text-align:left}
+.input-group label{display:block;margin-bottom:5px;font-weight:bold;font-size:.85rem}
+.input-group input,.input-group select{width:100%;padding:10px;border-radius:var(--radius);border:1px solid #ccc;font-family:inherit;background:var(--surface-color);color:var(--text-primary)}
+.input-group input:disabled,.input-group select:disabled{background:#f3f4f6;color:#6b7280}
+.input-group input.err{border-color:#dc2626}
+.field-err{color:#dc2626;font-size:.78rem;margin-top:3px;min-height:1rem}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:15px}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;display:flex;align-items:center;justify-content:center}
+.modal-box{background:var(--surface-color);border-radius:var(--radius);box-shadow:0 8px 30px rgba(0,0,0,.2);width:min(600px,96vw);max-height:90vh;overflow-y:auto;padding:25px}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.modal-title{font-size:1.2rem;font-weight:bold;color:var(--brand-color)}
+.modal-close{background:none;border:none;font-size:1.5rem;cursor:pointer;color:var(--text-secondary);line-height:1}
+.modal-close:hover{color:var(--brand-hover)}
+.modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;padding-top:15px;border-top:1px solid #eee}
+.form-alert{padding:10px 15px;border-radius:var(--radius);font-size:.88rem;margin-bottom:12px;font-weight:bold;display:none}
+.form-alert.success{background:#dcfce7;color:#166534;border:1px solid #bbf7d0;display:block}
+.form-alert.error{background:#fee2e2;color:#991b1b;border:1px solid #fecaca;display:block}
+#toast{position:fixed;bottom:25px;left:50%;transform:translateX(-50%);background:var(--brand-color);color:white;padding:10px 22px;border-radius:20px;font-size:.9rem;font-weight:bold;z-index:200;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
+#toast.show{opacity:1}
+@media(max-width:768px){
+  body{height:auto;overflow-y:auto;display:block}
+  #dashboard-view{flex-direction:column;height:auto}
+  .sidebar{width:100%;flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;border-right:none;border-bottom:var(--border);padding:10px}
+  .sidebar-logo-container{width:100%;margin-bottom:5px;border-bottom:none;padding-bottom:0}
+  .nav-item{margin:2px 5px;padding:8px 10px;font-size:.8rem;flex:1 1 auto;text-align:center}
+  .logout-btn{margin-top:0;margin:2px 5px;padding:8px 10px;font-size:.8rem;text-align:center}
+  .main-content{padding:15px}
+  .stats-grid{grid-template-columns:1fr 1fr;gap:10px}
+  .form-grid{grid-template-columns:1fr;gap:10px}
+  .data-table{white-space:nowrap}
+}
+</style>
+</head>
+<body>
+<div id="dashboard-view">
+  <div class="sidebar">
+    <div class="sidebar-logo-container">
+      <img id="sidebarIcon" src="../tutorvest.jpg" alt="Logo" class="sidebar-logo-img">
+      <span class="sidebar-logo-text">TutorVest</span>
+    </div>
+    <div class="nav-item active" onclick="navegar('visao-geral',this)">Visão Geral</div>
+    <div class="nav-item" onclick="navegar('tutores',this)">Tutores</div>
+    <div class="nav-item" onclick="navegar('alunos',this)">Alunos</div>
+    <div class="logout-btn" onclick="fazerLogout()">↩ Sair</div>
+  </div>
+  <div class="main-content">
+
+    <!-- ── VISÃO GERAL ── -->
+    <div id="sec-visao-geral" class="secao">
+      <h2 class="header-title">Painel Administrativo</h2>
+      <div class="stats-grid">
+        <div class="stat-card"><h3>Tutores Ativos</h3><div class="value" id="cnt-tutores-ativos">0</div></div>
+        <div class="stat-card"><h3>Tutores Inativos</h3><div class="value" id="cnt-tutores-inativos">0</div></div>
+        <div class="stat-card"><h3>Alunos Ativos</h3><div class="value" id="cnt-alunos-ativos">0</div></div>
+        <div class="stat-card"><h3>Alunos Inativos</h3><div class="value" id="cnt-alunos-inativos">0</div></div>
+      </div>
+    </div>
+
+    <!-- ── TUTORES ── -->
+    <div id="sec-tutores" class="secao hidden">
+      <div class="section-header">
+        <h2 class="header-title" style="margin:0">Gerenciamento de Tutores</h2>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn-reload" onclick="recarregarTutores()">↺ Recarregar Dados de Exemplo</button>
+          <button class="btn-primary" onclick="abrirModalTutor(null)">+ Cadastrar Tutor</button>
+        </div>
+      </div>
+      <div class="search-bar">
+        <input type="text" id="search-tutor" placeholder="Buscar por Nome, CPF ou Matrícula…">
+        <select id="filter-tutor-status">
+          <option value="">Todos os Status</option>
+          <option value="Ativo">Ativo</option>
+          <option value="Inativo">Inativo</option>
+        </select>
+        <button class="btn-primary" style="white-space:nowrap" onclick="aplicarFiltroTutor()">Pesquisar</button>
+      </div>
+      <div class="tabs">
+        <button class="tab-btn active" id="tab-tutores-ativos-btn" onclick="mudarTabTutor('ativos')">Ativos e Inativos</button>
+        <button class="tab-btn" id="tab-tutores-excluidos-btn" onclick="mudarTabTutor('excluidos')">Excluídos</button>
+      </div>
+      <div class="tab-content" id="tab-tutores-ativos">
+        <div class="table-responsive-wrapper">
+          <table class="data-table">
+            <thead><tr>
+              <th onclick="ordenarTutores('cpf')">CPF ↕</th>
+              <th onclick="ordenarTutores('matricula')">Matrícula ↕</th>
+              <th onclick="ordenarTutores('nome')">Nome ↕</th>
+              <th>Celular</th><th>E-mail</th>
+              <th onclick="ordenarTutores('status')">Status ↕</th>
+              <th>Ações</th>
+            </tr></thead>
+            <tbody id="tbody-tutores-ativos"></tbody>
+          </table>
+        </div>
+        <div class="pagination" id="pag-tutores-ativos"></div>
+      </div>
+      <div class="tab-content hidden" id="tab-tutores-excluidos">
+        <div class="table-responsive-wrapper">
+          <table class="data-table">
+            <thead><tr>
+              <th>CPF</th><th>Matrícula</th><th>Nome</th>
+              <th>Celular</th><th>E-mail</th><th>Status</th><th>Ações</th>
+            </tr></thead>
+            <tbody id="tbody-tutores-excluidos"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ALUNOS ── -->
+    <div id="sec-alunos" class="secao hidden">
+      <div class="section-header">
+        <h2 class="header-title" style="margin:0">Gerenciamento de Alunos</h2>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn-reload" onclick="recarregarAlunos()">↺ Recarregar Dados de Exemplo</button>
+          <button class="btn-primary" onclick="abrirModalAluno(null)">+ Cadastrar Aluno</button>
+        </div>
+      </div>
+      <div class="search-bar">
+        <input type="text" id="search-aluno" placeholder="Buscar por Nome ou Matrícula…">
+        <select id="filter-aluno-status">
+          <option value="">Todos os Status</option>
+          <option value="Ativo">Ativo</option>
+          <option value="Inativo">Inativo</option>
+        </select>
+        <button class="btn-primary" style="white-space:nowrap" onclick="aplicarFiltroAluno()">Pesquisar</button>
+      </div>
+      <div class="tabs">
+        <button class="tab-btn active" id="tab-alunos-ativos-btn" onclick="mudarTabAluno('ativos')">Ativos e Inativos</button>
+        <button class="tab-btn" id="tab-alunos-excluidos-btn" onclick="mudarTabAluno('excluidos')">Excluídos</button>
+      </div>
+      <div class="tab-content" id="tab-alunos-ativos">
+        <div class="table-responsive-wrapper">
+          <table class="data-table">
+            <thead><tr>
+              <th onclick="ordenarAlunos('matricula')">Matrícula ↕</th>
+              <th onclick="ordenarAlunos('nome')">Nome ↕</th>
+              <th>Celular</th><th>E-mail</th><th>Ano / Turno</th>
+              <th onclick="ordenarAlunos('status')">Status ↕</th>
+              <th>Ações</th>
+            </tr></thead>
+            <tbody id="tbody-alunos-ativos"></tbody>
+          </table>
+        </div>
+        <div class="pagination" id="pag-alunos-ativos"></div>
+      </div>
+      <div class="tab-content hidden" id="tab-alunos-excluidos">
+        <div class="table-responsive-wrapper">
+          <table class="data-table">
+            <thead><tr>
+              <th>Matrícula</th><th>Nome</th><th>Celular</th>
+              <th>E-mail</th><th>Ano / Turno</th><th>Status</th><th>Ações</th>
+            </tr></thead>
+            <tbody id="tbody-alunos-excluidos"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end main-content -->
+</div><!-- end dashboard-view -->
+
+<!-- ── MODAL ── -->
+<div id="modal-overlay" class="modal-overlay hidden">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-title">Formulário</span>
+      <button class="modal-close" onclick="fecharModal()">×</button>
+    </div>
+    <div id="modal-form-alert" class="form-alert"></div>
+    <div id="modal-body"></div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="fecharModal()">Cancelar</button>
+      <button class="btn-primary" id="modal-save-btn" onclick="salvarModal()">Salvar</button>
+    </div>
+  </div>
+</div>
+<div id="toast">—</div>
+<script>
+// ── DADOS PADRÃO ─────────────────────────────────────────────────────────────
+const TUTORES_DEFAULT = [
+  {id:1,cpf:'123.456.789-00',matricula:'T001',nome:'Marina Paiva',celular:'(81) 99123-4567',email:'marina.paiva@gge.edu.br',status:'Ativo',tp:false},
+  {id:2,cpf:'234.567.890-11',matricula:'T002',nome:'Carlos Souza',celular:'(81) 99234-5678',email:'carlos.souza@gge.edu.br',status:'Ativo',tp:true},
+  {id:3,cpf:'345.678.901-22',matricula:'T003',nome:'Ana Lima',celular:'(81) 99345-6789',email:'ana.lima@gge.edu.br',status:'Inativo',tp:false},
+  {id:4,cpf:'456.789.012-33',matricula:'T004',nome:'Pedro Alves',celular:'(81) 99456-7890',email:'pedro.alves@gge.edu.br',status:'Ativo',tp:false},
+  {id:5,cpf:'567.890.123-44',matricula:'T005',nome:'Lucia Ferreira',celular:'(81) 99567-8901',email:'lucia.ferreira@gge.edu.br',status:'Inativo',tp:true},
+  {id:6,cpf:'678.901.234-55',matricula:'T006',nome:'Roberto Nunes',celular:'(81) 99678-9012',email:'roberto.nunes@gge.edu.br',status:'Excluído',tp:false}
+];
+const ALUNOS_DEFAULT = [
+  {id:1,matricula:'A001',nome:'João Pedro',nasc:'2007-05-15',ano:'3º Ano',turno:'Manhã',celular:'(81) 98111-2233',email:'joao.pedro@gge.edu.br',status:'Ativo',tp:false},
+  {id:2,matricula:'A002',nome:'Ana Beatriz',nasc:'2007-08-22',ano:'3º Ano',turno:'Tarde',celular:'(81) 98222-3344',email:'ana.beatriz@gge.edu.br',status:'Ativo',tp:true},
+  {id:3,matricula:'A003',nome:'Mariana Silva',nasc:'2008-02-10',ano:'2º Ano',turno:'Manhã',celular:'(81) 98333-4455',email:'mariana.silva@gge.edu.br',status:'Ativo',tp:false},
+  {id:4,matricula:'A004',nome:'Lucas Mendes',nasc:'2008-11-30',ano:'2º Ano',turno:'Noite',celular:'(81) 98444-5566',email:'lucas.mendes@gge.edu.br',status:'Inativo',tp:false},
+  {id:5,matricula:'A005',nome:'Carla Souza',nasc:'2009-04-18',ano:'1º Ano',turno:'Manhã',celular:'(81) 98555-6677',email:'carla.souza@gge.edu.br',status:'Ativo',tp:true},
+  {id:6,matricula:'A006',nome:'Felipe Costa',nasc:'2007-09-05',ano:'3º Ano',turno:'Tarde',celular:'(81) 98666-7788',email:'felipe.costa@gge.edu.br',status:'Excluído',tp:false}
+];
+
+// ── ESTADO ────────────────────────────────────────────────────────────────────
+let tutores = JSON.parse(JSON.stringify(TUTORES_DEFAULT));
+let alunos  = JSON.parse(JSON.stringify(ALUNOS_DEFAULT));
+let tutoresFiltrados = [], alunosFiltrados = [];
+let tutoresSort = {field:'nome',dir:1}, alunosSort = {field:'nome',dir:1};
+let tutoresPage = 1, alunosPage = 1;
+const PAGE_SIZE = 5;
+let modalCtx = null;
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+const ge = id => document.getElementById(id);
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function toast(msg){
+  const t=ge('toast'); t.textContent=msg; t.classList.add('show');
+  clearTimeout(window.__tt); window.__tt=setTimeout(()=>t.classList.remove('show'),2800);
+}
+function navegar(id,el){
+  document.querySelectorAll('.secao').forEach(s=>s.classList.add('hidden'));
+  document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));
+  ge('sec-'+id).classList.remove('hidden'); el.classList.add('active');
+  if(id==='visao-geral') atualizarContadores();
+  if(id==='tutores'){tutoresFiltrados=[...tutores.filter(t=>t.status!=='Excluído')];renderTutores();}
+  if(id==='alunos'){alunosFiltrados=[...alunos.filter(a=>a.status!=='Excluído')];renderAlunos();}
+}
+function fazerLogout(){ window.location.href='../index.html'; }
+function atualizarContadores(){
+  ge('cnt-tutores-ativos').textContent  = tutores.filter(t=>t.status==='Ativo').length;
+  ge('cnt-tutores-inativos').textContent= tutores.filter(t=>t.status==='Inativo').length;
+  ge('cnt-alunos-ativos').textContent   = alunos.filter(a=>a.status==='Ativo').length;
+  ge('cnt-alunos-inativos').textContent = alunos.filter(a=>a.status==='Inativo').length;
+}
+// ── VALIDAÇÕES ───────────────────────────────────────────────────────────────
+const validarCPF     = v => /^\d{3}\.\d{3}\.\d{3}-\d{2}$/.test(v);
+const validarCelular = v => /^\(\d{2}\)\s?9\d{4}-\d{4}$/.test(v);
+const validarEmail   = v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+
+// ── MODAL ─────────────────────────────────────────────────────────────────────
+function fecharModal(){ ge('modal-overlay').classList.add('hidden'); modalCtx=null; }
+function showAlerta(msg,tipo){ const e=ge('modal-form-alert'); e.textContent=msg; e.className='form-alert '+tipo; }
+function clearAlerta(){ const e=ge('modal-form-alert'); e.textContent=''; e.className='form-alert'; }
+function salvarModal(){ if(modalCtx?.tipo==='tutor') salvarTutor(); else salvarAluno(); }
+function bindBlur(fid,errid,validFn,errMsg){
+  const el=ge(fid); if(!el)return;
+  el.addEventListener('blur',()=>{
+    const v=el.value.trim(); const er=ge(errid);
+    if(v&&!validFn(v)){el.classList.add('err');er.textContent=errMsg;}
+    else{el.classList.remove('err');er.textContent='';}
+  });
+}
+
+// ── TUTORES — FILTRO / ORDEM / PAGINAÇÃO ─────────────────────────────────────
+function aplicarFiltroTutor(){
+  const txt=(ge('search-tutor').value||'').toLowerCase();
+  const st=ge('filter-tutor-status').value;
+  tutoresFiltrados=tutores.filter(t=>{
+    if(t.status==='Excluído')return false;
+    if(st&&t.status!==st)return false;
+    if(txt&&!t.nome.toLowerCase().includes(txt)&&!t.cpf.includes(txt)&&!t.matricula.toLowerCase().includes(txt))return false;
+    return true;
+  });
+  tutoresPage=1; renderTabelaTutoresAtivos();
+}
+function ordenarTutores(f){
+  if(tutoresSort.field===f)tutoresSort.dir*=-1; else{tutoresSort.field=f;tutoresSort.dir=1;}
+  renderTabelaTutoresAtivos();
+}
+function mudarTabTutor(tab){
+  const a=tab==='ativos';
+  ge('tab-tutores-ativos').classList.toggle('hidden',!a);
+  ge('tab-tutores-excluidos').classList.toggle('hidden',a);
+  ge('tab-tutores-ativos-btn').classList.toggle('active',a);
+  ge('tab-tutores-excluidos-btn').classList.toggle('active',!a);
+  if(!a)renderTabelaTutoresExcluidos();
+}
+function renderTutores(){tutoresFiltrados=tutores.filter(t=>t.status!=='Excluído');tutoresPage=1;renderTabelaTutoresAtivos();renderTabelaTutoresExcluidos();}
+
+function renderTabelaTutoresAtivos(){
+  const sorted=[...tutoresFiltrados].sort((a,b)=>{
+    const av=String(a[tutoresSort.field]||'').toLowerCase(),bv=String(b[tutoresSort.field]||'').toLowerCase();
+    return av<bv?-tutoresSort.dir:av>bv?tutoresSort.dir:0;
+  });
+  const pages=Math.max(1,Math.ceil(sorted.length/PAGE_SIZE));
+  if(tutoresPage>pages)tutoresPage=pages;
+  const slice=sorted.slice((tutoresPage-1)*PAGE_SIZE,tutoresPage*PAGE_SIZE);
+  const tb=ge('tbody-tutores-ativos'); tb.innerHTML='';
+  if(!slice.length){tb.innerHTML='<tr><td colspan="7" style="text-align:center;color:#6b7280;padding:20px">Nenhum tutor encontrado.</td></tr>';}
+  else slice.forEach(t=>{
+    tb.innerHTML+=`<tr>
+      <td>${esc(t.cpf)}</td><td><strong>${esc(t.matricula)}</strong></td><td>${esc(t.nome)}</td>
+      <td>${esc(t.celular)}</td><td>${esc(t.email)}</td>
+      <td><span class="tag ${t.status.toLowerCase()}">${esc(t.status)}</span></td>
+      <td>
+        <button class="btn-action" onclick="abrirModalTutor(${t.id})">✏️ Editar</button>
+        <button class="btn-action delete" onclick="excluirTutor(${t.id})">🗑️ Excluir</button>
+      </td></tr>`;
+  });
+  const pag=ge('pag-tutores-ativos'); pag.innerHTML='';
+  if(pages>1){
+    pag.innerHTML+=`<span class="page-info">Página ${tutoresPage} de ${pages}</span>`;
+    for(let p=1;p<=pages;p++)pag.innerHTML+=`<button class="page-btn${p===tutoresPage?' active':''}" onclick="irPagTutor(${p})">${p}</button>`;
+  }
+}
+function irPagTutor(p){tutoresPage=p;renderTabelaTutoresAtivos();}
+
+function renderTabelaTutoresExcluidos(){
+  const exc=tutores.filter(t=>t.status==='Excluído');
+  const tb=ge('tbody-tutores-excluidos'); tb.innerHTML='';
+  if(!exc.length){tb.innerHTML='<tr><td colspan="7" style="text-align:center;color:#6b7280;padding:20px">Nenhum tutor excluído.</td></tr>';return;}
+  exc.forEach(t=>{
+    tb.innerHTML+=`<tr>
+      <td>${esc(t.cpf)}</td><td><strong>${esc(t.matricula)}</strong></td><td>${esc(t.nome)}</td>
+      <td>${esc(t.celular)}</td><td>${esc(t.email)}</td>
+      <td><span class="tag excluido">Excluído</span></td>
+      <td><button class="btn-action reativar" onclick="reativarTutor(${t.id})">↩ Reativar</button></td></tr>`;
+  });
+}
+
+// ── TUTORES — CRUD ────────────────────────────────────────────────────────────
+function abrirModalTutor(id){
+  clearAlerta(); const isEdit=id!==null;
+  const t=isEdit?tutores.find(x=>x.id===id):null;
+  modalCtx={tipo:'tutor',id,modo:isEdit?'editar':'criar'};
+  ge('modal-title').textContent=isEdit?'Editar Tutor':'Cadastrar Tutor';
+  ge('modal-body').innerHTML=`
+    <div class="form-grid">
+      <div class="input-group"><label>CPF *</label>
+        <input type="text" id="f-cpf" placeholder="000.000.000-00" ${isEdit?'disabled':''} value="${esc(t?.cpf||'')}">
+        <div class="field-err" id="err-cpf"></div></div>
+      <div class="input-group"><label>Matrícula *</label>
+        <input type="text" id="f-mat" placeholder="T001" ${isEdit?'disabled':''} value="${esc(t?.matricula||'')}">
+        <div class="field-err" id="err-mat"></div></div>
+      <div class="input-group"><label>Nome *</label>
+        <input type="text" id="f-nome" placeholder="Nome completo" value="${esc(t?.nome||'')}">
+        <div class="field-err" id="err-nome"></div></div>
+      <div class="input-group"><label>Celular *</label>
+        <input type="text" id="f-cel" placeholder="(81) 99999-9999" value="${esc(t?.celular||'')}">
+        <div class="field-err" id="err-cel"></div></div>
+      <div class="input-group" style="grid-column:1/-1"><label>E-mail GGE *</label>
+        <input type="email" id="f-email" placeholder="nome@gge.edu.br" value="${esc(t?.email||'')}">
+        <div class="field-err" id="err-email"></div></div>
+      ${isEdit?`<div class="input-group" style="grid-column:1/-1"><label>Status</label>
+        <select id="f-status"><option value="Ativo" ${t?.status==='Ativo'?'selected':''}>Ativo</option>
+        <option value="Inativo" ${t?.status==='Inativo'?'selected':''}>Inativo</option></select></div>`:''}
+    </div>`;
+  if(!isEdit) bindBlur('f-cpf','err-cpf',validarCPF,'CPF digitado de forma inválida!');
+  bindBlur('f-cel','err-cel',validarCelular,'Celular digitado de forma inválida!');
+  bindBlur('f-email','err-email',validarEmail,'E-mail digitado de forma inválida!');
+  ge('modal-overlay').classList.remove('hidden');
+}
+function salvarTutor(){
+  clearAlerta(); const isEdit=modalCtx.modo==='editar'; const id=modalCtx.id;
+  const t=isEdit?tutores.find(x=>x.id===id):null;
+  const cpf   =isEdit?t.cpf   :(ge('f-cpf')?.value||'').trim();
+  const mat   =isEdit?t.matricula:(ge('f-mat')?.value||'').trim();
+  const nome  =(ge('f-nome')?.value||'').trim();
+  const cel   =(ge('f-cel')?.value||'').trim();
+  const email =(ge('f-email')?.value||'').trim();
+  const status=isEdit?(ge('f-status')?.value||'Ativo'):'Ativo';
+  let err=false;
+  const setErr=(eid,msg)=>{ge(eid).textContent=msg;err=true;};
+  if(!nome)setErr('err-nome','Nome é obrigatório.');
+  if(!cel)setErr('err-cel','Celular é obrigatório.');
+  else if(!validarCelular(cel)){setErr('err-cel','Celular digitado de forma inválida!');ge('f-cel').classList.add('err');}
+  if(!email)setErr('err-email','E-mail é obrigatório.');
+  else if(!validarEmail(email)){setErr('err-email','E-mail digitado de forma inválida!');ge('f-email').classList.add('err');}
+  if(!isEdit){
+    if(!cpf)setErr('err-cpf','CPF é obrigatório.');
+    else if(!validarCPF(cpf)){setErr('err-cpf','CPF digitado de forma inválida!');ge('f-cpf').classList.add('err');}
+    if(!mat)setErr('err-mat','Matrícula é obrigatória.');
+  }
+  if(err){showAlerta('Verifique os campos destacados.','error');return;}
+  if(!isEdit&&tutores.find(x=>x.cpf===cpf)){showAlerta('CPF já cadastrado, por isso não será possível a inclusão do tutor!','error');return;}
+  if(!isEdit&&tutores.find(x=>x.matricula===mat)){showAlerta('Matrícula já cadastrada, por isso não será possível a inclusão do tutor!','error');return;}
+  if(tutores.find(x=>x.celular===cel&&x.id!==id)){showAlerta('Celular já cadastrado, por isso não será possível a inclusão do tutor!','error');return;}
+  if(tutores.find(x=>x.email===email&&x.id!==id)){showAlerta('E-mail já cadastrado, por isso não será possível a inclusão do tutor!','error');return;}
+  if(isEdit&&t.status==='Ativo'&&status==='Inativo'&&t.tp){
+    if(!confirm('O tutor possui tutorias pendentes, confirmadas ou aguardando reagendamento. Deseja cancelar essas tutorias?'))return;
+  }
+  if(isEdit){Object.assign(t,{nome,celular:cel,email,status});toast('Tutor alterado com sucesso!');}
+  else{tutores.push({id:Date.now(),cpf,matricula:mat,nome,celular:cel,email,status:'Ativo',tp:false});toast("Tutor cadastrado com sucesso com status 'Ativo'!");}
+  fecharModal();tutoresFiltrados=tutores.filter(x=>x.status!=='Excluído');renderTabelaTutoresAtivos();atualizarContadores();
+}
+function excluirTutor(id){
+  const t=tutores.find(x=>x.id===id); if(!t)return;
+  if(t.status==='Ativo'&&t.tp){if(!confirm('O tutor possui tutorias pendentes, confirmadas ou aguardando reagendamento. Deseja cancelar essas tutorias?'))return;}
+  if(!confirm('Confirma a exclusão do tutor?'))return;
+  t.status='Excluído'; toast('Tutor excluído com sucesso!');
+  tutoresFiltrados=tutores.filter(x=>x.status!=='Excluído');renderTabelaTutoresAtivos();atualizarContadores();
+}
+function reativarTutor(id){
+  const t=tutores.find(x=>x.id===id);if(!t)return;
+  t.status='Ativo';toast('Tutor reativado com sucesso!');
+  mudarTabTutor('ativos');renderTutores();atualizarContadores();
+}
+function recarregarTutores(){
+  if(!confirm('Restaurar dados de exemplo? As alterações serão perdidas.'))return;
+  tutores=JSON.parse(JSON.stringify(TUTORES_DEFAULT));
+  tutoresFiltrados=tutores.filter(t=>t.status!=='Excluído');
+  renderTabelaTutoresAtivos();renderTabelaTutoresExcluidos();atualizarContadores();
+  toast('✅ Dados de tutores restaurados!');
+}
+
+// ── ALUNOS — FILTRO / ORDEM / PAGINAÇÃO ───────────────────────────────────────
+function aplicarFiltroAluno(){
+  const txt=(ge('search-aluno').value||'').toLowerCase();
+  const st=ge('filter-aluno-status').value;
+  alunosFiltrados=alunos.filter(a=>{
+    if(a.status==='Excluído')return false;
+    if(st&&a.status!==st)return false;
+    if(txt&&!a.nome.toLowerCase().includes(txt)&&!a.matricula.toLowerCase().includes(txt))return false;
+    return true;
+  });
+  alunosPage=1; renderTabelaAlunosAtivos();
+}
+function ordenarAlunos(f){
+  if(alunosSort.field===f)alunosSort.dir*=-1; else{alunosSort.field=f;alunosSort.dir=1;}
+  renderTabelaAlunosAtivos();
+}
+function mudarTabAluno(tab){
+  const a=tab==='ativos';
+  ge('tab-alunos-ativos').classList.toggle('hidden',!a);
+  ge('tab-alunos-excluidos').classList.toggle('hidden',a);
+  ge('tab-alunos-ativos-btn').classList.toggle('active',a);
+  ge('tab-alunos-excluidos-btn').classList.toggle('active',!a);
+  if(!a)renderTabelaAlunosExcluidos();
+}
+function renderAlunos(){alunosFiltrados=alunos.filter(a=>a.status!=='Excluído');alunosPage=1;renderTabelaAlunosAtivos();renderTabelaAlunosExcluidos();}
+
+function renderTabelaAlunosAtivos(){
+  const sorted=[...alunosFiltrados].sort((a,b)=>{
+    const av=String(a[alunosSort.field]||'').toLowerCase(),bv=String(b[alunosSort.field]||'').toLowerCase();
+    return av<bv?-alunosSort.dir:av>bv?alunosSort.dir:0;
+  });
+  const pages=Math.max(1,Math.ceil(sorted.length/PAGE_SIZE));
+  if(alunosPage>pages)alunosPage=pages;
+  const slice=sorted.slice((alunosPage-1)*PAGE_SIZE,alunosPage*PAGE_SIZE);
+  const tb=ge('tbody-alunos-ativos'); tb.innerHTML='';
+  if(!slice.length){tb.innerHTML='<tr><td colspan="7" style="text-align:center;color:#6b7280;padding:20px">Nenhum aluno encontrado.</td></tr>';}
+  else slice.forEach(a=>{
+    tb.innerHTML+=`<tr>
+      <td><strong>${esc(a.matricula)}</strong></td><td>${esc(a.nome)}</td>
+      <td>${esc(a.celular)}</td><td>${esc(a.email)}</td>
+      <td>${esc(a.ano)} / ${esc(a.turno)}</td>
+      <td><span class="tag ${a.status.toLowerCase()}">${esc(a.status)}</span></td>
+      <td>
+        <button class="btn-action" onclick="abrirModalAluno(${a.id})">✏️ Editar</button>
+        <button class="btn-action delete" onclick="excluirAluno(${a.id})">🗑️ Excluir</button>
+      </td></tr>`;
+  });
+  const pag=ge('pag-alunos-ativos'); pag.innerHTML='';
+  if(pages>1){
+    pag.innerHTML+=`<span class="page-info">Página ${alunosPage} de ${pages}</span>`;
+    for(let p=1;p<=pages;p++)pag.innerHTML+=`<button class="page-btn${p===alunosPage?' active':''}" onclick="irPagAluno(${p})">${p}</button>`;
+  }
+}
+function irPagAluno(p){alunosPage=p;renderTabelaAlunosAtivos();}
+
+function renderTabelaAlunosExcluidos(){
+  const exc=alunos.filter(a=>a.status==='Excluído');
+  const tb=ge('tbody-alunos-excluidos'); tb.innerHTML='';
+  if(!exc.length){tb.innerHTML='<tr><td colspan="7" style="text-align:center;color:#6b7280;padding:20px">Nenhum aluno excluído.</td></tr>';return;}
+  exc.forEach(a=>{
+    tb.innerHTML+=`<tr>
+      <td><strong>${esc(a.matricula)}</strong></td><td>${esc(a.nome)}</td>
+      <td>${esc(a.celular)}</td><td>${esc(a.email)}</td>
+      <td>${esc(a.ano)} / ${esc(a.turno)}</td>
+      <td><span class="tag excluido">Excluído</span></td>
+      <td><button class="btn-action reativar" onclick="reativarAluno(${a.id})">↩ Reativar</button></td></tr>`;
+  });
+}
+
+// ── ALUNOS — CRUD ──────────────────────────────────────────────────────────────
+function abrirModalAluno(id){
+  clearAlerta(); const isEdit=id!==null;
+  const a=isEdit?alunos.find(x=>x.id===id):null;
+  modalCtx={tipo:'aluno',id,modo:isEdit?'editar':'criar'};
+  ge('modal-title').textContent=isEdit?'Editar Aluno':'Cadastrar Aluno';
+  ge('modal-body').innerHTML=`
+    <div class="form-grid">
+      <div class="input-group"><label>Matrícula *</label>
+        <input type="text" id="fa-mat" placeholder="A001" ${isEdit?'disabled':''} value="${esc(a?.matricula||'')}">
+        <div class="field-err" id="err-fa-mat"></div></div>
+      <div class="input-group"><label>Data de Nascimento *</label>
+        <input type="date" id="fa-nasc" value="${esc(a?.nasc||'')}">
+        <div class="field-err" id="err-fa-nasc"></div></div>
+      <div class="input-group" style="grid-column:1/-1"><label>Nome Completo *</label>
+        <input type="text" id="fa-nome" placeholder="Nome completo" value="${esc(a?.nome||'')}">
+        <div class="field-err" id="err-fa-nome"></div></div>
+      <div class="input-group"><label>Celular *</label>
+        <input type="text" id="fa-cel" placeholder="(81) 98888-9999" value="${esc(a?.celular||'')}">
+        <div class="field-err" id="err-fa-cel"></div></div>
+      <div class="input-group"><label>E-mail *</label>
+        <input type="email" id="fa-email" placeholder="nome@gge.edu.br" value="${esc(a?.email||'')}">
+        <div class="field-err" id="err-fa-email"></div></div>
+      <div class="input-group"><label>Ano Escolar *</label>
+        <select id="fa-ano">
+          <option value="1º Ano" ${a?.ano==='1º Ano'?'selected':''}>1º Ano</option>
+          <option value="2º Ano" ${a?.ano==='2º Ano'?'selected':''}>2º Ano</option>
+          <option value="3º Ano" ${a?.ano==='3º Ano'?'selected':''}>3º Ano</option>
+        </select></div>
+      <div class="input-group"><label>Turno *</label>
+        <select id="fa-turno">
+          <option value="Manhã" ${a?.turno==='Manhã'?'selected':''}>Manhã</option>
+          <option value="Tarde" ${a?.turno==='Tarde'?'selected':''}>Tarde</option>
+          <option value="Noite" ${a?.turno==='Noite'?'selected':''}>Noite</option>
+        </select></div>
+      ${isEdit?`<div class="input-group" style="grid-column:1/-1"><label>Status</label>
+        <select id="fa-status">
+          <option value="Ativo" ${a?.status==='Ativo'?'selected':''}>Ativo</option>
+          <option value="Inativo" ${a?.status==='Inativo'?'selected':''}>Inativo</option>
+        </select></div>`:'' }
+    </div>`;
+  bindBlur('fa-cel','err-fa-cel',validarCelular,'Celular digitado de forma inválida!');
+  bindBlur('fa-email','err-fa-email',validarEmail,'E-mail digitado de forma inválida!');
+  ge('modal-overlay').classList.remove('hidden');
+}
+function salvarAluno(){
+  clearAlerta(); const isEdit=modalCtx.modo==='editar'; const id=modalCtx.id;
+  const a=isEdit?alunos.find(x=>x.id===id):null;
+  const mat   =isEdit?a.matricula:(ge('fa-mat')?.value||'').trim();
+  const nasc  =(ge('fa-nasc')?.value||'').trim();
+  const nome  =(ge('fa-nome')?.value||'').trim();
+  const cel   =(ge('fa-cel')?.value||'').trim();
+  const email =(ge('fa-email')?.value||'').trim();
+  const ano   =(ge('fa-ano')?.value||'3º Ano');
+  const turno =(ge('fa-turno')?.value||'Manhã');
+  const status=isEdit?(ge('fa-status')?.value||'Ativo'):'Ativo';
+  let err=false;
+  const setErr=(eid,msg)=>{ge(eid).textContent=msg;err=true;};
+  if(!nome)setErr('err-fa-nome','Nome é obrigatório.');
+  if(!nasc)setErr('err-fa-nasc','Data de nascimento é obrigatória.');
+  if(!cel)setErr('err-fa-cel','Celular é obrigatório.');
+  else if(!validarCelular(cel)){setErr('err-fa-cel','Celular digitado de forma inválida!');ge('fa-cel').classList.add('err');}
+  if(!email)setErr('err-fa-email','E-mail é obrigatório.');
+  else if(!validarEmail(email)){setErr('err-fa-email','E-mail digitado de forma inválida!');ge('fa-email').classList.add('err');}
+  if(!isEdit&&!mat)setErr('err-fa-mat','Matrícula é obrigatória.');
+  if(err){showAlerta('Verifique os campos destacados.','error');return;}
+  if(!isEdit&&alunos.find(x=>x.matricula===mat)){showAlerta('Matrícula já cadastrada, por isso não será possível a inclusão do aluno!','error');return;}
+  if(alunos.find(x=>x.celular===cel&&x.id!==id)){showAlerta('Celular já cadastrado, por isso não será possível a inclusão do aluno!','error');return;}
+  if(alunos.find(x=>x.email===email&&x.id!==id)){showAlerta('E-mail já cadastrado, por isso não será possível a inclusão do aluno!','error');return;}
+  if(isEdit){Object.assign(a,{nome,nasc,celular:cel,email,ano,turno,status});toast('Aluno alterado com sucesso!');}
+  else{alunos.push({id:Date.now(),matricula:mat,nome,nasc,celular:cel,email,ano,turno,status:'Ativo',tp:false});toast("Aluno cadastrado com sucesso com status 'Ativo'!");}
+  fecharModal();alunosFiltrados=alunos.filter(x=>x.status!=='Excluído');renderTabelaAlunosAtivos();atualizarContadores();
+}
+function excluirAluno(id){
+  const a=alunos.find(x=>x.id===id); if(!a)return;
+  if(!confirm('Confirma a exclusão do aluno?'))return;
+  a.status='Excluído'; toast('Aluno excluído com sucesso!');
+  alunosFiltrados=alunos.filter(x=>x.status!=='Excluído');renderTabelaAlunosAtivos();atualizarContadores();
+}
+function reativarAluno(id){
+  const a=alunos.find(x=>x.id===id);if(!a)return;
+  a.status='Ativo';toast('Aluno reativado com sucesso!');
+  mudarTabAluno('ativos');renderAlunos();atualizarContadores();
+}
+function recarregarAlunos(){
+  if(!confirm('Restaurar dados de exemplo? As alterações serão perdidas.'))return;
+  alunos=JSON.parse(JSON.stringify(ALUNOS_DEFAULT));
+  alunosFiltrados=alunos.filter(a=>a.status!=='Excluído');
+  renderTabelaAlunosAtivos();renderTabelaAlunosExcluidos();atualizarContadores();
+  toast('✅ Dados de alunos restaurados!');
+}
+
+// ── INICIALIZAÇÃO ──────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded',()=>{
+  atualizarContadores();
+  // fechar modal clicando fora
+  ge('modal-overlay').addEventListener('click',e=>{if(e.target===ge('modal-overlay'))fecharModal();});
+});
+</script>
+</body>
+</html>
+
