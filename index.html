@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TutorVest – Login</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f4f6f9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .tv-box {
+      background: #fff;
+      padding: 35px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,.08);
+      border: 1px solid #e1e4e8;
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+      border-top: 5px solid #002b5c;
+    }
+    .tv-logo {
+      width: 70px;
+      height: auto;
+      margin-bottom: 12px;
+      border-radius: 8px;
+    }
+    .tv-box h1 { margin-bottom: 4px; color: #002b5c; font-size: 1.7rem; }
+    .tv-box p  { color: #4a4a4a; margin-bottom: 22px; font-size: .9rem; }
+    .tv-grp { margin-bottom: 14px; text-align: left; }
+    .tv-grp label { display: block; margin-bottom: 5px; font-weight: bold; font-size: .85rem; }
+    .tv-grp select,
+    .tv-grp input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-family: inherit;
+      font-size: .95rem;
+      background: #fff;
+      color: #000;
+    }
+    .tv-btn {
+      width: 100%;
+      padding: 12px;
+      background: #002b5c;
+      color: white;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: .2s;
+      font-size: .95rem;
+      font-family: inherit;
+    }
+    .tv-btn:hover { background: #e3000f; }
+    .tv-erro { color: #dc2626; font-size: .85rem; margin-top: 8px; display: none; }
+  </style>
+</head>
+<body>
+  <div class="tv-box">
+    <img src="tutorvest.jpg" class="tv-logo" alt="Logo TutorVest">
+    <h1>TutorVest</h1>
+    <p>Plataforma de Tutoria GGE</p>
+    <div class="tv-grp">
+      <label>Perfil de Acesso</label>
+      <select id="tv-role">
+        <option value="admin">⚙️ Administrador</option>
+        <option value="tutor" selected>📚 Tutor</option>
+        <option value="aluno">🎓 Aluno</option>
+      </select>
+    </div>
+    <div class="tv-grp">
+      <label>Senha</label>
+      <input type="password" id="tv-senha" placeholder="Digite a senha">
+    </div>
+    <button class="tv-btn" onclick="tvLogin()">Acessar</button>
+    <div class="tv-erro" id="tv-erro">Senha incorreta. Tente novamente.</div>
+  </div>
+  <script>
+    document.getElementById('tv-senha').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') tvLogin();
+    });
+    function tvLogin() {
+      var senha = document.getElementById('tv-senha').value;
+      var role  = document.getElementById('tv-role').value;
+      if (senha !== '123456') {
+        document.getElementById('tv-erro').style.display = 'block';
+        return;
+      }
+      window.location.href = role + '/index.html';
+    }
+  </script>
+</body>
+</html>
+
