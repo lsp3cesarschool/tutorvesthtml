@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="gge">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TutorVest – Aluno</title>
+<style>
+:root[data-theme="gge"]{--bg-color:#f4f6f9;--surface-color:#fff;--text-primary:#000;
+  --text-secondary:#4a4a4a;--brand-color:#002b5c;--brand-hover:#e3000f;
+  --sidebar-bg:#fff;--radius:8px;--shadow:0 4px 12px rgba(0,0,0,.08);
+  --border:1px solid #e1e4e8;--font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-family);background:var(--bg-color);color:var(--text-primary);height:100vh;overflow:hidden;display:flex}
+button{font-family:inherit;cursor:pointer;border:none}
+.hidden{display:none!important}
+.layout{width:100%;height:100%;display:flex}
+.sidebar{width:240px;background:var(--sidebar-bg);border-right:var(--border);padding:15px;display:flex;flex-direction:column;box-shadow:var(--shadow);z-index:10;flex-shrink:0}
+.sidebar-logo-container{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:20px;border-bottom:2px solid var(--brand-hover);padding-bottom:10px}
+.sidebar-logo-img{width:32px;height:auto;border-radius:4px}
+.sidebar-logo-text{font-size:1.4rem;font-weight:bold;color:var(--brand-color)}
+.student-info{text-align:center;margin-bottom:15px;padding:10px;background:var(--bg-color);border-radius:var(--radius)}
+.student-info .avatar{width:44px;height:44px;border-radius:50%;background:var(--brand-color);color:#fff;font-weight:bold;font-size:1.1rem;display:flex;align-items:center;justify-content:center;margin:0 auto 6px}
+.student-info .name{font-weight:bold;font-size:.9rem;color:var(--brand-color)}
+.student-info .sub{font-size:.75rem;color:var(--text-secondary)}
+.nav-item{padding:10px 12px;margin-bottom:5px;border-radius:var(--radius);color:var(--text-secondary);font-weight:bold;cursor:pointer;transition:.2s;font-size:.9rem}
+.nav-item:hover,.nav-item.active{background:var(--brand-color);color:white}
+.logout-btn{margin-top:auto;color:var(--brand-hover);padding:10px 12px;cursor:pointer;font-weight:bold;font-size:.9rem;transition:.2s}
+.logout-btn:hover{background:#fee2e2;border-radius:var(--radius)}
+.main-content{flex:1;padding:25px 30px;overflow-y:auto;min-width:0}
+.header-title{font-size:1.5rem;margin-bottom:18px;color:var(--text-primary)}
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.stat-card{background:var(--surface-color);padding:15px;border-radius:var(--radius);box-shadow:var(--shadow);border:var(--border);border-left:4px solid var(--brand-hover)}
+.stat-card h3{color:var(--text-secondary);font-size:.82rem;margin-bottom:4px}
+.stat-card .value{font-size:1.4rem;font-weight:bold;color:var(--brand-color)}
+.card{background:var(--surface-color);padding:18px;border-radius:var(--radius);box-shadow:var(--shadow);border:var(--border);margin-bottom:16px}
+.card-title{font-size:1rem;font-weight:bold;color:var(--brand-color);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.dashboard-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.dashboard-right{display:flex;flex-direction:column;gap:16px}
+.tutor-card-header{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.tutor-avatar{width:48px;height:48px;border-radius:var(--radius);background:var(--brand-color);color:#fff;font-weight:bold;font-size:1.1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.tutor-name{font-weight:bold;font-size:.95rem}
+.tutor-sub{font-size:.8rem;color:var(--text-secondary);margin-top:2px}
+.meta-box{background:var(--bg-color);border-radius:var(--radius);padding:10px 12px;font-size:.85rem;color:var(--text-secondary);border-left:3px solid var(--brand-color);margin-top:8px}
+.chat-log{height:220px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:8px;background:var(--bg-color);border-radius:var(--radius);border:var(--border);margin-bottom:10px}
+.bubble{padding:8px 12px;border-radius:var(--radius);max-width:85%;font-size:.87rem;line-height:1.5}
+.bubble.me{background:var(--brand-color);color:#fff;align-self:flex-end}
+.bubble.tutor{background:var(--surface-color);color:var(--text-primary);border:var(--border);align-self:flex-start}
+.bubble .bub-meta{font-size:.72rem;opacity:.7;margin-bottom:3px}
+.chat-input-row{display:flex;gap:8px}
+.chat-input-row textarea{flex:1;padding:9px;border-radius:var(--radius);border:1px solid #ccc;font-family:inherit;font-size:.87rem;resize:none;height:60px}
+.schedule-item{display:flex;align-items:center;justify-content:space-between;padding:10px;border-radius:var(--radius);background:var(--bg-color);border:var(--border);margin-bottom:8px;font-size:.87rem}
+.tag-status{padding:3px 9px;border-radius:12px;font-size:.75rem;font-weight:bold}
+.tag-status.confirmada{background:#dcfce7;color:#166534}
+.tag-status.pendente{background:#fef08a;color:#854d0e}
+.task-item{display:flex;align-items:center;justify-content:space-between;padding:10px;border-radius:var(--radius);background:var(--bg-color);border:var(--border);margin-bottom:8px}
+.task-item .task-info{display:flex;gap:10px;align-items:center}
+.task-icon{font-size:1.3rem}
+.task-title{font-weight:bold;font-size:.87rem}
+.task-desc{font-size:.78rem;color:var(--text-secondary);margin-top:2px}
+.tag-prio{padding:2px 8px;border-radius:10px;font-size:.72rem;font-weight:bold;margin-left:6px;background:#fef08a;color:#854d0e}
+.subject-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.subject-card{background:var(--surface-color);padding:20px;border-radius:var(--radius);box-shadow:var(--shadow);border:var(--border)}
+.subject-card .icon{font-size:2rem;margin-bottom:10px}
+.subject-card h3{font-size:1.1rem;font-weight:bold;color:var(--brand-color);margin-bottom:6px}
+.subject-card .desc{font-size:.83rem;color:var(--text-secondary);margin-bottom:14px}
+.subject-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.sstat{background:var(--bg-color);padding:8px;border-radius:var(--radius);text-align:center;border:var(--border)}
+.sstat .sv{font-size:1.2rem;font-weight:bold;color:var(--brand-color)}
+.sstat .sl{font-size:.72rem;color:var(--text-secondary)}
+.btn-primary{padding:9px 16px;background:var(--brand-color);color:white;font-weight:bold;border-radius:var(--radius);transition:.2s;font-size:.88rem;width:100%}
+.btn-primary:hover{background:var(--brand-hover)}
+.btn-secondary{padding:7px 14px;background:#f0f0f0;color:var(--text-secondary);font-weight:bold;border-radius:var(--radius);font-size:.85rem;border:var(--border)}
+.btn-secondary:hover{background:#e0e0e0}
+.btn-outline{padding:7px 14px;background:transparent;color:var(--brand-color);font-weight:bold;border-radius:var(--radius);border:1px solid var(--brand-color);font-size:.85rem}
+.btn-outline:hover{background:var(--brand-color);color:#fff}
+.btn-danger{padding:7px 14px;background:transparent;color:#dc2626;border:1px solid #dc2626;border-radius:var(--radius);font-weight:bold;font-size:.85rem}
+.btn-danger:hover{background:#dc2626;color:#fff}
+.btn-reload{padding:7px 13px;background:#f0f9ff;color:#0369a1;border:1px solid #0369a1;border-radius:var(--radius);font-size:.82rem;font-weight:bold;cursor:pointer;transition:.2s}
+.btn-reload:hover{background:#0369a1;color:white}
+.quiz-toolbar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.quiz-progress-bar{height:10px;background:#e1e4e8;border-radius:5px;overflow:hidden;margin-bottom:16px}
+.quiz-progress-fill{height:100%;background:var(--brand-color);transition:width .2s;border-radius:5px}
+.quiz-stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.q-card{background:var(--surface-color);border:var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px;box-shadow:var(--shadow)}
+.q-card .q-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;gap:10px}
+.q-card .q-title{font-weight:bold;font-size:.9rem}
+.q-chip{padding:3px 9px;border-radius:12px;font-size:.73rem;font-weight:bold;background:#e8f4fd;color:var(--brand-color)}
+.q-verdict{padding:3px 9px;border-radius:12px;font-size:.73rem;font-weight:bold}
+.q-verdict.correta{background:#dcfce7;color:#166534}
+.q-verdict.incorreta{background:#fee2e2;color:#991b1b}
+.q-verdict.branco{background:#fef08a;color:#854d0e}
+.q-verdict.andamento{background:#f1f5f9;color:#64748b}
+.q-prompt{font-size:.88rem;color:var(--text-primary);margin-bottom:12px;line-height:1.6}
+.q-options{display:flex;flex-direction:column;gap:6px}
+.q-option label{display:flex;align-items:flex-start;gap:10px;padding:8px 12px;border-radius:var(--radius);border:1px solid #e1e4e8;cursor:pointer;font-size:.87rem;transition:.2s}
+.q-option label:hover{border-color:var(--brand-color);background:#f0f5ff}
+.q-option input[type="radio"]{margin-top:2px;accent-color:var(--brand-color)}
+.opt-key{min-width:24px;height:24px;border-radius:4px;background:#e1e4e8;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:.8rem;flex-shrink:0}
+.q-explanation{background:#f0f5ff;border-left:3px solid var(--brand-color);padding:10px 12px;border-radius:var(--radius);font-size:.83rem;color:var(--text-secondary);margin-top:10px;line-height:1.6}
+.results-card{background:var(--surface-color);border:2px solid var(--brand-color);border-radius:var(--radius);padding:18px;margin-bottom:16px}
+.results-card h3{color:var(--brand-color);font-size:1.1rem;margin-bottom:12px}
+.section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+#toast{position:fixed;bottom:25px;left:50%;transform:translateX(-50%);background:var(--brand-color);color:white;padding:10px 22px;border-radius:20px;font-size:.9rem;font-weight:bold;z-index:200;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
+#toast.show{opacity:1}
+@media(max-width:768px){
+  body{height:auto;overflow-y:auto;display:block}
+  .layout{flex-direction:column;height:auto}
+  .sidebar{width:100%;flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;border-right:none;border-bottom:var(--border);padding:8px}
+  .sidebar-logo-container{width:100%;margin-bottom:4px;border-bottom:none;padding-bottom:0}
+  .student-info{display:none}
+  .nav-item{margin:2px 4px;padding:7px 10px;font-size:.8rem;flex:1 1 auto;text-align:center}
+  .logout-btn{margin-top:0;margin:2px 4px;padding:7px 10px;font-size:.8rem;text-align:center}
+  .main-content{padding:15px}
+  .stats-grid,.subject-grid,.dashboard-grid{grid-template-columns:1fr}
+  .quiz-stats-row{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+  <div class="sidebar">
+    <div class="sidebar-logo-container">
+      <img id="sidebarIcon" src="../tutorvest.jpg" alt="Logo" class="sidebar-logo-img">
+      <span class="sidebar-logo-text">TutorVest</span>
+    </div>
+    <div class="student-info">
+      <div class="avatar" id="sidebarAvatar">A</div>
+      <div class="name" id="sidebarName">Aluno</div>
+      <div class="sub">Portal do Aluno</div>
+    </div>
+    <div class="nav-item active" onclick="navegar('dashboard',this)">📊 Dashboard</div>
+    <div class="nav-item" onclick="navegar('materias',this)">📚 Matérias</div>
+    <div class="nav-item" onclick="navegar('quiz',this)" id="nav-quiz" style="display:none">🎯 Simulado</div>
+    <div class="logout-btn" onclick="fazerLogout()">↩ Sair</div>
+  </div>
+  <div class="main-content" id="main-content">
+
+    <!-- ── DASHBOARD ── -->
+    <div id="sec-dashboard" class="secao">
+      <div class="section-header">
+        <h2 class="header-title" style="margin:0">Olá, <span id="studentName">Aluno</span> 👋</h2>
+        <button class="btn-reload" onclick="recarregarDados()">↺ Recarregar Dados de Exemplo</button>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card"><h3>Próxima Sessão</h3><div class="value" id="kpiNextSession">—</div></div>
+        <div class="stat-card"><h3>Tarefas Pendentes</h3><div class="value" id="kpiTasks">0</div></div>
+        <div class="stat-card"><h3>Simulados Feitos</h3><div class="value" id="kpiQuizzes">0</div></div>
+      </div>
+      <div class="dashboard-grid">
+        <!-- Coluna esquerda: Tutor + Chat -->
+        <div>
+          <div class="card">
+            <div class="card-title">🧑‍🏫 Tutor Associado</div>
+            <div class="tutor-card-header">
+              <div class="tutor-avatar" id="tutorInitials">MP</div>
+              <div>
+                <div class="tutor-name" id="tutorName">Prof. Marina Paiva</div>
+                <div class="tutor-sub" id="tutorTitle">Matemática • Estratégias de prova</div>
+              </div>
+            </div>
+            <div class="meta-box" id="metaBox">
+              <strong>Meta da semana:</strong> fazer o simulado + revisar erros (principalmente funções e concordância).
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">💬 Chat com o Tutor</div>
+            <div class="chat-log" id="chatLog"></div>
+            <div class="chat-input-row">
+              <textarea id="chatInput" placeholder="Escreva uma mensagem… (Enter envia, Shift+Enter nova linha)"></textarea>
+              <button class="btn-primary" style="width:auto;padding:0 16px" onclick="enviarMensagem()">Enviar</button>
+            </div>
+            <p style="font-size:.73rem;color:var(--text-secondary);margin-top:6px">* Protótipo local: mensagens salvas em localStorage.</p>
+          </div>
+        </div>
+        <!-- Coluna direita: Agenda + Tarefas -->
+        <div class="dashboard-right">
+          <div class="card" id="cardSchedule">
+            <div class="card-title">📅 Agendamento</div>
+            <div id="scheduleList"></div>
+            <button class="btn-outline" style="width:100%;margin-top:4px" onclick="toastMsg('Solicitação enviada ao tutor (protótipo).')">Solicitar nova sessão</button>
+          </div>
+          <div class="card" id="cardTasks">
+            <div class="card-title">⚡ Tarefas Recentes</div>
+            <div id="tasksList"></div>
+            <div style="display:flex;gap:8px;margin-top:8px">
+              <button class="btn-outline" style="flex:1" onclick="navegar('materias',document.querySelectorAll('.nav-item')[1])">Ver matérias</button>
+              <button class="btn-primary" style="flex:1" onclick="iniciarQuiz('full')">Abrir simulado</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── MATÉRIAS ── -->
+    <div id="sec-materias" class="secao hidden">
+      <h2 class="header-title">Matérias do Simulado</h2>
+      <div class="subject-grid">
+        <div class="subject-card">
+          <div class="icon">🧮</div>
+          <h3>Matemática</h3>
+          <p class="desc">Funções, probabilidade, geometria e progressões.</p>
+          <div class="subject-stats">
+            <div class="sstat"><div class="sv" id="mathBest">—</div><div class="sl">Melhor resultado</div></div>
+            <div class="sstat"><div class="sv" id="mathLast">—</div><div class="sl">Última tentativa</div></div>
+          </div>
+          <button class="btn-primary" onclick="iniciarQuiz('math')">Praticar Matemática</button>
+        </div>
+        <div class="subject-card">
+          <div class="icon">📚</div>
+          <h3>Português</h3>
+          <p class="desc">Interpretação, concordância, crase e linguagem.</p>
+          <div class="subject-stats">
+            <div class="sstat"><div class="sv" id="portBest">—</div><div class="sl">Melhor resultado</div></div>
+            <div class="sstat"><div class="sv" id="portLast">—</div><div class="sl">Última tentativa</div></div>
+          </div>
+          <button class="btn-primary" onclick="iniciarQuiz('port')">Praticar Português</button>
+        </div>
+      </div>
+      <div class="card" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+        <div>
+          <strong>Simulado Completo</strong>
+          <p style="font-size:.83rem;color:var(--text-secondary);margin-top:3px">Matemática + Português (10 questões no total)</p>
+        </div>
+        <button class="btn-primary" style="width:auto" onclick="iniciarQuiz('full')">Iniciar Simulado Completo</button>
+      </div>
+    </div>
+
+    <!-- ── QUIZ ── -->
+    <div id="sec-quiz" class="secao hidden">
+      <div class="section-header">
+        <div>
+          <h2 class="header-title" id="quizTitle" style="margin:0">Simulado</h2>
+          <p style="font-size:.85rem;color:var(--text-secondary);margin-top:4px" id="quizCountTag">0/0 respondidas</p>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn-secondary" onclick="navegar('materias',document.querySelectorAll('.nav-item')[1])">Voltar</button>
+          <button class="btn-danger" onclick="resetarQuiz()">Limpar respostas</button>
+          <button class="btn-primary" style="width:auto" onclick="finalizarQuiz()">Finalizar</button>
+        </div>
+      </div>
+      <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="quizProgressFill" style="width:0%"></div></div>
+      <!-- Filtros -->
+      <div class="quiz-toolbar">
+        <span style="font-weight:bold;font-size:.85rem;color:var(--text-secondary)">Filtrar:</span>
+        <button class="btn-outline" id="filterAll" onclick="setFiltroQuiz('all')">📌 Tudo</button>
+        <button class="btn-secondary" id="filterMath" onclick="setFiltroQuiz('math')">🧮 Matemática</button>
+        <button class="btn-secondary" id="filterPort" onclick="setFiltroQuiz('port')">📚 Português</button>
+      </div>
+      <!-- Resultado (aparece após finalizar) -->
+      <div id="resultsCard" class="results-card hidden">
+        <h3>✅ Resultado</h3>
+        <div class="quiz-stats-row">
+          <div class="stat-card" style="margin:0"><h3>Pontuação Total</h3><div class="value" id="scoreTotal">0/0</div></div>
+          <div class="stat-card" style="margin:0"><h3>Matemática</h3><div class="value" id="scoreMath">0/0</div></div>
+          <div class="stat-card" style="margin:0"><h3>Português</h3><div class="value" id="scorePort">0/0</div></div>
+        </div>
+        <p style="font-size:.83rem;color:var(--text-secondary);margin-top:10px">
+          💡 <strong>Próximo passo:</strong> envie no chat quais questões errou e peça uma mini-aula focada.
+        </p>
+      </div>
+      <!-- Cards de questões -->
+      <div id="questionsContainer"></div>
+    </div>
+
+  </div><!-- end main-content -->
+</div>
+<div id="toast">—</div>
+<script>
+// ── BANCO DE QUESTÕES ─────────────────────────────────────────────────────────
+const QUESTION_BANK = [
+  {id:"M1",subject:"Matemática",title:"Equações do 2º grau",
+   prompt:"Se <strong>x</strong> é raiz da equação <strong>x² − 5x + 6 = 0</strong>, então o produto das raízes é:",
+   options:{a:"5",b:"6",c:"−6",d:"11"},answer:"b",
+   explanation:"Pela relação de Viète, em x² + bx + c = 0, o produto das raízes é c. Aqui, c = 6."},
+  {id:"M2",subject:"Matemática",title:"Logaritmos",
+   prompt:"O valor de <strong>log<sub>2</sub>(32)</strong> é:",
+   options:{a:"4",b:"5",c:"6",d:"10"},answer:"b",
+   explanation:"Como 32 = 2⁵, então log₂(32) = 5."},
+  {id:"M3",subject:"Matemática",title:"Probabilidade",
+   prompt:"Uma urna contém 3 bolas vermelhas e 2 azuis. Retira-se 1 bola ao acaso. A probabilidade de ser azul é:",
+   options:{a:"2/3",b:"2/5",c:"3/5",d:"1/2"},answer:"b",
+   explanation:"Total de bolas = 5. Azuis = 2. Probabilidade = 2/5."},
+  {id:"M4",subject:"Matemática",title:"Geometria plana",
+   prompt:"A área de um triângulo de base 10 cm e altura 6 cm é:",
+   options:{a:"16 cm²",b:"30 cm²",c:"60 cm²",d:"120 cm²"},answer:"b",
+   explanation:"Área = (base × altura)/2 = (10 × 6)/2 = 30 cm²."},
+  {id:"M5",subject:"Matemática",title:"Progressão aritmética (PA)",
+   prompt:"Em uma PA, o primeiro termo é 3 e a razão é 4. O 6º termo é:",
+   options:{a:"19",b:"23",c:"27",d:"31"},answer:"b",
+   explanation:"aₙ = a₁ + (n−1)r ⇒ a₆ = 3 + 5·4 = 23."},
+  {id:"P1",subject:"Português",title:"Figuras de linguagem",
+   prompt:'Na frase <em>"A esperança é uma luz que não se apaga"</em>, ocorre principalmente:',
+   options:{a:"Hipérbole",b:"Metáfora",c:"Ironia",d:"Eufemismo"},answer:"b",
+   explanation:'"Esperança" é comparada a "luz" sem conectivo explícito, caracterizando metáfora.'},
+  {id:"P2",subject:"Português",title:"Concordância verbal",
+   prompt:"Assinale a alternativa com concordância correta:",
+   options:{a:"Fazem dois anos que não te vejo.",b:"Houveram muitos candidatos na sala.",c:"Existe muitas razões para estudar.",d:"Faz dois anos que não te vejo."},
+   answer:"d",explanation:'"Fazer" indicando tempo decorrido é impessoal: fica no singular (faz).'},
+  {id:"P3",subject:"Português",title:"Crase",
+   prompt:"Assinale a frase em que o uso da crase está correto:",
+   options:{a:"Cheguei à pé na escola.",b:"Entreguei o trabalho à professora.",c:"Voltei à casa de meus amigos ontem.",d:"Assisti à o filme recomendado."},
+   answer:"b",explanation:'Há crase quando ocorre preposição "a" + artigo "a" (à professora).'},
+  {id:"P4",subject:"Português",title:"Interpretação de texto",
+   prompt:'Leia: <em>"Em tempos de excesso de informação, aprender a selecionar boas fontes é tão importante quanto aprender o conteúdo."</em><br>A ideia principal é:',
+   options:{a:"A informação deve ser consumida sem filtros.",b:"O conteúdo é irrelevante.",c:"Selecionar fontes confiáveis é essencial.",d:"A melhor forma de aprender é evitar informação."},
+   answer:"c",explanation:"O trecho afirma que selecionar boas fontes é tão importante quanto aprender o conteúdo."},
+  {id:"P5",subject:"Português",title:"Ambiguidade e coesão",
+   prompt:"Em qual alternativa a frase está <strong>menos</strong> ambígua (mais clara)?",
+   options:{a:"Vi o professor com o aluno na biblioteca.",b:"Na biblioteca, vi o professor junto do aluno.",c:"Vi o professor com o binóculo.",d:"Ela disse para a irmã que estava nervosa."},
+   answer:"b",explanation:"(b) reduz ambiguidades ao explicitar 'junto do aluno' e o local."}
+];
+
+// ── DADOS PADRÃO ──────────────────────────────────────────────────────────────
+const STATE_DEFAULT = {
+  studentName:"João Pedro",
+  tutor:{name:"Prof. Marina Paiva",title:"Matemática • Estratégias de prova"},
+  chat:[{from:"tutor",name:"Prof. Marina Paiva",time:"08:00",text:"Oi! 👋\nQuando você terminar o simulado, me diga quais questões te derrubaram. Vamos atacar esses pontos com uma mini-aula."}],
+  schedule:[
+    {when:"Ter • 18:30",where:"Online (Meet)",status:"Confirmada"},
+    {when:"Qui • 19:00",where:"Online (Meet)",status:"Confirmada"},
+    {when:"Sáb • 10:00",where:"Online (Meet)",status:"Pendente"}
+  ],
+  tasks:[
+    {title:"Simulado (Matemática + Português)",desc:"10 questões • múltipla escolha • finalizar até quinta.",kind:"simulado",priority:"alta"},
+    {title:"Revisão rápida: Funções",desc:"15 min • foco em log e PA.",kind:"revisao",priority:"media"},
+    {title:"Leitura e interpretação",desc:"2 textos curtos • identificar tese e argumentos.",kind:"leitura",priority:"media"}
+  ],
+  quiz:{mode:"full",answers:{},filter:"all",finished:false,lastResult:null,history:[]}
+};
+
+// ── ESTADO ─────────────────────────────────────────────────────────────────────
+let state = JSON.parse(JSON.stringify(STATE_DEFAULT));
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+const ge = id => document.getElementById(id);
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function nowHHMM(){ return new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"}); }
+function toastMsg(msg){
+  const t=ge('toast'); t.textContent=msg; t.classList.add('show');
+  clearTimeout(window.__tt); window.__tt=setTimeout(()=>t.classList.remove('show'),2800);
+}
+function navegar(id,el){
+  document.querySelectorAll('.secao').forEach(s=>s.classList.add('hidden'));
+  document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));
+  ge('sec-'+id).classList.remove('hidden');
+  if(el) el.classList.add('active');
+  if(id==='materias') atualizarEstatisticasMateria();
+  if(id==='dashboard') renderDashboard();
+}
+function fazerLogout(){ window.location.href='../index.html'; }
+
+// ── RENDER DASHBOARD ──────────────────────────────────────────────────────────
+function renderDashboard(){
+  ge('studentName').textContent = state.studentName;
+  ge('sidebarName').textContent = state.studentName;
+  ge('sidebarAvatar').textContent = state.studentName.charAt(0).toUpperCase();
+  const initials = state.tutor.name.replace('Prof. ','').split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
+  ge('tutorInitials').textContent = initials;
+  ge('tutorName').textContent = state.tutor.name;
+  ge('tutorTitle').textContent = state.tutor.title;
+  ge('kpiTasks').textContent = state.tasks.length;
+  ge('kpiNextSession').textContent = state.schedule?.[1]?.when || '—';
+  ge('kpiQuizzes').textContent = (state.quiz?.history||[]).length;
+  renderSchedule();
+  renderTasks();
+  renderChat();
+}
+
+function renderSchedule(){
+  const host=ge('scheduleList'); host.innerHTML='';
+  state.schedule.forEach(s=>{
+    const cls=s.status==='Confirmada'?'confirmada':'pendente';
+    host.innerHTML+=`<div class="schedule-item">
+      <div><div style="font-weight:bold">${esc(s.when)}</div><div style="font-size:.78rem;color:var(--text-secondary)">${esc(s.where)}</div></div>
+      <span class="tag-status ${cls}">${esc(s.status)}</span>
+    </div>`;
+  });
+}
+
+function renderTasks(){
+  const host=ge('tasksList'); host.innerHTML='';
+  state.tasks.forEach((t,i)=>{
+    const icon=t.kind==='simulado'?'📝':(t.kind==='revisao'?'🧠':'📚');
+    const prio=t.priority==='alta'?`<span class="tag-prio">Alta</span>`:'';
+    host.innerHTML+=`<div class="task-item">
+      <div class="task-info">
+        <div class="task-icon">${icon}</div>
+        <div><div class="task-title">${esc(t.title)}${prio}</div><div class="task-desc">${esc(t.desc)}</div></div>
+      </div>
+      ${t.kind==='simulado'
+        ?`<button class="btn-primary" style="width:auto;padding:6px 12px;font-size:.8rem" onclick="iniciarQuiz('full')">Abrir</button>`
+        :`<button class="btn-secondary" style="font-size:.8rem" onclick="toastMsg('Tarefa marcada! (protótipo)')">Marcar</button>`
+      }
+    </div>`;
+  });
+}
+
+function renderChat(){
+  const log=ge('chatLog'); log.innerHTML='';
+  (state.chat||[]).forEach(m=>{
+    const isMe=m.from==='me';
+    log.innerHTML+=`<div class="bubble ${isMe?'me':'tutor'}">
+      <div class="bub-meta">${esc(isMe?state.studentName:m.name)} • ${esc(m.time)}</div>
+      <div>${esc(m.text).replace(/\n/g,'<br>')}</div>
+    </div>`;
+  });
+  log.scrollTop=log.scrollHeight;
+}
+
+function enviarMensagem(){
+  const txt=(ge('chatInput').value||'').trim();
+  if(!txt){toastMsg('Digite uma mensagem.');return;}
+  state.chat.push({from:'me',name:state.studentName,time:nowHHMM(),text:txt});
+  ge('chatInput').value='';
+  renderChat();
+  setTimeout(()=>{
+    const replies=['Boa! Me diga em qual questão você travou e qual alternativa você marcou.','Perfeito — depois do simulado, vamos fazer um plano de revisão de 20 min/dia.','Entendi. Tenta explicar em 2 frases o que você achou confuso (isso acelera a correção).'];
+    state.chat.push({from:'tutor',name:state.tutor.name,time:nowHHMM(),text:replies[Math.floor(Math.random()*replies.length)]});
+    renderChat();
+  },550);
+}
+
+// ── QUIZ ──────────────────────────────────────────────────────────────────────
+function getQuestoes(mode){
+  if(mode==='math')return QUESTION_BANK.filter(q=>q.subject==='Matemática');
+  if(mode==='port')return QUESTION_BANK.filter(q=>q.subject==='Português');
+  return QUESTION_BANK.slice();
+}
+
+function iniciarQuiz(mode){
+  state.quiz.mode=mode; state.quiz.finished=false; state.quiz.lastResult=null;
+  state.quiz.filter='all'; state.quiz.answers={};
+  ge('nav-quiz').style.display='';
+  navegar('quiz',ge('nav-quiz'));
+  renderQuiz(); toastMsg('Simulado iniciado!');
+}
+
+function resetarQuiz(){
+  state.quiz.answers={}; state.quiz.finished=false; state.quiz.lastResult=null;
+  renderQuiz(); toastMsg('Respostas limpas.');
+}
+
+function finalizarQuiz(){
+  const qs=getQuestoes(state.quiz.mode);
+  const ans=state.quiz.answers||{};
+  let correctTotal=0;
+  const bySubject={'Matemática':{correct:0,total:0},'Português':{correct:0,total:0}};
+  qs.forEach(q=>{
+    bySubject[q.subject].total++;
+    if(ans[q.id]&&ans[q.id]===q.answer){correctTotal++;bySubject[q.subject].correct++;}
+  });
+  const result={mode:state.quiz.mode,total:qs.length,correctTotal,bySubject,timestamp:new Date().toISOString()};
+  state.quiz.finished=true; state.quiz.lastResult=result;
+  state.quiz.history=state.quiz.history||[];
+  state.quiz.history.push(result);
+  renderQuiz(); toastMsg('Corrigido! Veja o resumo.');
+}
+
+function setFiltroQuiz(which){
+  state.quiz.filter=which==='math'?'Matemática':(which==='port'?'Português':'all');
+  ['filterAll','filterMath','filterPort'].forEach(id=>ge(id).className='btn-secondary');
+  ge(which==='all'?'filterAll':which==='math'?'filterMath':'filterPort').className='btn-outline';
+  renderQuiz();
+}
+
+function renderQuiz(){
+  const mode=state.quiz.mode; const qs=getQuestoes(mode);
+  const ans=state.quiz.answers||{};
+  const modeLabel=mode==='full'?'Simulado Completo':(mode==='math'?'Simulado de Matemática':'Simulado de Português');
+  ge('quizTitle').textContent=modeLabel;
+  const answered=qs.filter(q=>!!ans[q.id]).length;
+  ge('quizCountTag').textContent=`${answered}/${qs.length} respondidas`;
+  ge('quizProgressFill').style.width=(qs.length?Math.round(answered/qs.length*100):0)+'%';
+  const filtered=state.quiz.filter==='all'?qs:qs.filter(q=>q.subject===state.quiz.filter);
+  const container=ge('questionsContainer'); container.innerHTML='';
+  filtered.forEach(q=>{
+    const chosen=ans[q.id]||null; const done=!!state.quiz.finished;
+    let verdict='';
+    if(done){
+      if(!chosen)verdict='<span class="q-verdict branco">⚠️ em branco</span>';
+      else if(chosen===q.answer)verdict='<span class="q-verdict correta">✅ correta</span>';
+      else verdict='<span class="q-verdict incorreta">❌ incorreta</span>';
+    }else verdict='<span class="q-verdict andamento">⏳ em andamento</span>';
+    const subChip=`<span class="q-chip">${q.subject==='Matemática'?'🧮':'📚'} ${esc(q.subject)}</span>`;
+    const opts=Object.entries(q.options).map(([key,text])=>{
+      const checked=chosen===key?'checked':''; const disabled=done?'disabled':'';
+      return `<div class="q-option"><label>
+        <input type="radio" name="q_${q.id}" value="${key}" ${checked} ${disabled} onchange="marcarResposta('${q.id}','${key}')">
+        <div style="display:flex;gap:8px;align-items:flex-start">
+          <span class="opt-key">${key}</span>
+          <span>${esc(text)}</span>
+        </div>
+      </label></div>`;
+    }).join('');
+    const expl=done?`<div class="q-explanation"><strong>Gabarito: ${esc(q.answer)}</strong> — ${q.explanation}</div>`:'';
+    container.innerHTML+=`<div class="q-card">
+      <div class="q-header"><div><div class="q-title">${esc(q.title)}</div><div style="margin-top:4px">${subChip}</div></div>${verdict}</div>
+      <div class="q-prompt">${q.prompt}</div>
+      <div class="q-options">${opts}</div>${expl}
+    </div>`;
+  });
+  const rc=ge('resultsCard');
+  if(state.quiz.finished&&state.quiz.lastResult){
+    rc.classList.remove('hidden');
+    const r=state.quiz.lastResult;
+    const m=r.bySubject['Matemática']; const p=r.bySubject['Português'];
+    ge('scoreTotal').textContent=`${r.correctTotal}/${r.total}`;
+    ge('scoreMath').textContent=`${m.correct}/${m.total}`;
+    ge('scorePort').textContent=`${p.correct}/${p.total}`;
+    atualizarEstatisticasMateria();
+  }else rc.classList.add('hidden');
+}
+
+function marcarResposta(qid,key){
+  state.quiz.answers[qid]=key; renderQuiz();
+}
+
+function atualizarEstatisticasMateria(){
+  const hist=state.quiz?.history||[];
+  const best=(sub)=>{const sc=hist.filter(h=>h.bySubject?.[sub]).map(h=>h.bySubject[sub].correct/h.bySubject[sub].total);return sc.length?Math.max(...sc):null;};
+  const last=(sub)=>{const it=[...hist].reverse().find(h=>h.bySubject?.[sub]);return it?it.bySubject[sub].correct/it.bySubject[sub].total:null;};
+  const fmt=x=>x==null?'—':`${Math.round(x*100)}%`;
+  ['mathBest','mathLast','portBest','portLast'].forEach((id,i)=>{
+    const sub=i<2?'Matemática':'Português'; const fn=i%2===0?best:last;
+    const el=ge(id); if(el)el.textContent=fmt(fn(sub));
+  });
+}
+
+// ── RECARREGAR DADOS ──────────────────────────────────────────────────────────
+function recarregarDados(){
+  if(!confirm('Restaurar dados de exemplo? O histórico do simulado e o chat serão apagados.'))return;
+  state=JSON.parse(JSON.stringify(STATE_DEFAULT));
+  renderDashboard(); toastMsg('✅ Dados de exemplo restaurados!');
+}
+
+// ── INICIALIZAÇÃO ─────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded',()=>{
+  ge('chatInput').addEventListener('keydown',e=>{
+    if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();enviarMensagem();}
+  });
+  renderDashboard();
+  setFiltroQuiz('all');
+});
+</script>
+</body>
+</html>
+
